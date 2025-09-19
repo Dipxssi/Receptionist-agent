@@ -357,17 +357,6 @@ export default function BotsPage() {
           )}
         </div>
       </div>
-
-      <div className="bg-blue-50 border-l-4 border-blue-400 p-4">
-        <div className="flex">
-          <div className="ml-3">
-            <p className="text-sm text-blue-700">
-              <strong>Complete CRUD Operations:</strong> Create, Read, Update, Delete bots with full OpenMic integration support. 
-              Click "Edit" to modify bot details, toggle status for quick enable/disable, or delete to remove bots permanently.
-            </p>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }
