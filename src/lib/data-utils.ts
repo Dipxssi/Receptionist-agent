@@ -49,6 +49,46 @@ export async function createBot(data: { name: string; openmic_uid?: string }) {
   }
 }
 
+export async function updateBot(
+  id: string, 
+  data: { 
+    name?: string; 
+    status?: string; 
+    openmic_uid?: string;
+    prompt?: string;
+  }
+) {
+  try {
+    const bot = await prisma.bot.update({
+      where: { id },
+      data: {
+        ...(data.name && { name: data.name }),
+        ...(data.status && { status: data.status }),
+        ...(data.openmic_uid !== undefined && { openmic_uid: data.openmic_uid }),
+        ...(data.prompt && { prompt: data.prompt }),
+        updatedAt: new Date()
+      }
+    });
+    return bot;
+  } catch (error) {
+    console.error('Error updating bot:', error);
+    throw error;
+  }
+}
+
+export async function deleteBot(id: string) {
+  try {
+    await prisma.bot.delete({
+      where: { id }
+    });
+    return true;
+  } catch (error) {
+    console.error('Error deleting bot:', error);
+    throw error;
+  }
+}
+
+
 export async function getEmployees() {
   return await prisma.employee.findMany();
 }
