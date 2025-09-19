@@ -1,32 +1,43 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { updateBot, deleteBot } from '@/lib/data-utils';
+import { addCallLog } from '@/lib/data-utils';
 
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function POST(request: NextRequest) {
   try {
-    const id = params.id;
     const body = await request.json();
-    
-    const bot = await updateBot(id, body);
-    return NextResponse.json({ bot });
-  } catch (error) {
-    console.error('Error updating bot:', error);
-    return NextResponse.json({ error: 'Failed to update bot' }, { status: 500 });
-  }
-}
+    console.log('Post-call webhook received:', body);
 
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  try {
-    const id = params.id;
-    await deleteBot(id);
-    return NextResponse.json({ success: true });
+    const { dynamic_variables, duration, transcript, status } = body;
+
+    // Create call log object
+    const callLog = {
+      bot: {
+        connect: { id: 'bot_001' } 
+      },
+      visitor: dynamic_variables?.visitor_name || 'Unknown Visitor',
+      employee: dynamic_variables?.employee_visited || 'Unknown Employee', 
+      department: dynamic_variables?.department || 'Unknown Department',
+      arrivalTime: new Date(),
+      duration: duration || 0,
+      transcript: transcript || null,
+      status: status || 'completed'
+    };
+
+    
+    const savedLog = await addCallLog(callLog);
+
+    console.log('Call log saved:', savedLog);
+    
+    return NextResponse.json({ 
+      success: true, 
+      message: 'Call logged successfully',
+      callLog: savedLog
+    });
+
   } catch (error) {
-    console.error('Error deleting bot:', error);
-    return NextResponse.json({ error: 'Failed to delete bot' }, { status: 500 });
+    console.error('Error in post-call webhook:', error);
+    return NextResponse.json(
+      { error: 'Failed to process post-call webhook' },
+      { status: 500 }
+    );
   }
 }
