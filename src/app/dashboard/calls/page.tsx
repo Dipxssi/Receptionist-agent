@@ -184,11 +184,10 @@ export default function CallsPage() {
                         {call.bot?.name || 'Unknown'}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                          call.status === 'completed' 
-                            ? 'bg-green-100 text-green-800' 
+                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${call.status === 'completed'
+                            ? 'bg-green-100 text-green-800'
                             : 'bg-yellow-100 text-yellow-800'
-                        }`}>
+                          }`}>
                           {call.status}
                         </span>
                       </td>
@@ -218,26 +217,46 @@ export default function CallsPage() {
                 Call Details - {selectedCall.id}
               </h3>
               <div className="space-y-3">
-                <div><strong>Visitor:</strong> {selectedCall.visitor}</div>
-                <div><strong>Employee:</strong> {selectedCall.employee}</div>
-                <div><strong>Department:</strong> {selectedCall.department}</div>
-                <div><strong>Duration:</strong> {selectedCall.duration} seconds</div>
-                <div><strong>Status:</strong> {selectedCall.status}</div>
-                <div><strong>Bot:</strong> {selectedCall.bot?.name || 'Unknown'}</div>
-                <div><strong>Time:</strong> {new Date(selectedCall.arrivalTime).toLocaleString()}</div>
+                <div className="text-gray-900">
+                  <strong className="text-gray-700">Visitor:</strong> {selectedCall.visitor}
+                </div>
+                <div className="text-gray-900">
+                  <strong className="text-gray-700">Employee:</strong> {selectedCall.employee}
+                </div>
+                <div className="text-gray-900">
+                  <strong className="text-gray-700">Department:</strong> {selectedCall.department}
+                </div>
+                <div className="text-gray-900">
+                  <strong className="text-gray-700">Duration:</strong> {selectedCall.duration} seconds
+                </div>
+                <div className="text-gray-900">
+                  <strong className="text-gray-700">Status:</strong>
+                  <span className={`ml-2 px-2 py-1 text-xs font-semibold rounded-full ${selectedCall.status === 'completed'
+                      ? 'bg-green-100 text-green-800'
+                      : 'bg-yellow-100 text-yellow-800'
+                    }`}>
+                    {selectedCall.status}
+                  </span>
+                </div>
+                <div className="text-gray-900">
+                  <strong className="text-gray-700">Bot:</strong> {selectedCall.bot?.name || 'Unknown'}
+                </div>
+                <div className="text-gray-900">
+                  <strong className="text-gray-700">Time:</strong> {new Date(selectedCall.arrivalTime).toLocaleString()}
+                </div>
                 {selectedCall.transcript && (
                   <div>
-                    <strong>Transcript:</strong>
-                    <p className="mt-2 p-3 bg-gray-50 rounded text-sm">
+                    <strong className="text-gray-700">Transcript:</strong>
+                    <p className="mt-2 p-3 bg-gray-50 rounded text-sm text-gray-900 border">
                       {selectedCall.transcript}
                     </p>
                   </div>
                 )}
               </div>
-              <div className="mt-4 flex justify-end">
+              <div className="mt-6 flex justify-end">
                 <button
                   onClick={() => setSelectedCall(null)}
-                  className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
+                  className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors"
                 >
                   Close
                 </button>
@@ -246,6 +265,7 @@ export default function CallsPage() {
           </div>
         </div>
       )}
+
     </div>
   );
 }
