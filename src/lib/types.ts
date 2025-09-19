@@ -56,5 +56,5 @@ export interface PostCallPayload {
   transcript: string;
   duration: number;
   status: string;
-  dynamic_variables?: Record<string, any>;
+  dynamic_variables?: Record<string, unknown>;
 }

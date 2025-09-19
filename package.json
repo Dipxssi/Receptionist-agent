@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "build-with-lint": "next lint && next build"
   },
   "prisma": {
      "seed" : "tsx prisma/seed.ts"

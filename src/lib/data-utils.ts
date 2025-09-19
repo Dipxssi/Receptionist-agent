@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Prisma } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -37,7 +37,7 @@ export async function getCallLogs() {
   });
 }
 
-export async function addCallLog(callLog: any) {
+export async function addCallLog(callLog:Prisma.CallLogCreateInput ) {
   return await prisma.callLog.create({
     data: callLog
   });
