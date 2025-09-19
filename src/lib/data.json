@@ -1,0 +1,66 @@
+{
+  "bots": [
+    {
+      "id": "bot_1",
+      "name": "Main Reception Agent",
+      "uid": "",
+      "prompt": "You are a professional AI receptionist for TechCorp. Greet visitors warmly, ask who they're visiting, and help them find the right person. Always be polite and helpful.",
+      "createdAt": "2025-09-18T14:00:00Z",
+      "updatedAt": "2025-09-18T14:00:00Z"
+    }
+  ],
+  "employees": [
+    {
+      "id": "emp_1",
+      "name": "Sarah Johnson",
+      "department": "Engineering",
+      "floor": "3rd",
+      "room": "305",
+      "status": "Available"
+    },
+    {
+      "id": "emp_2", 
+      "name": "Mike Chen",
+      "department": "Marketing",
+      "floor": "2nd",
+      "room": "201",
+      "status": "In Meeting"
+    },
+    {
+      "id": "emp_3",
+      "name": "Lisa Rodriguez",
+      "department": "HR",
+      "floor": "1st",
+      "room": "105",
+      "status": "Available"
+    }
+  ],
+  "visitors": [
+    {
+      "id": "vis_1",
+      "name": "John Smith",
+      "appointment": "2:00 PM",
+      "expectedEmployee": "Sarah Johnson",
+      "phoneNumber": "+1234567890"
+    },
+    {
+      "id": "vis_2",
+      "name": "Emily Davis", 
+      "appointment": "3:30 PM",
+      "expectedEmployee": "Mike Chen",
+      "phoneNumber": "+1234567891"
+    }
+  ],
+  "callLogs": [
+    {
+      "id": "call_1",
+      "botId": "bot_1",
+      "visitor": "John Smith",
+      "employee": "Sarah Johnson", 
+      "department": "Engineering",
+      "arrivalTime": "2025-09-18T14:25:00Z",
+      "duration": 45,
+      "status": "completed"
+    }
+  ]
+}

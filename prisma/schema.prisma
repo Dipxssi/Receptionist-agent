@@ -1,0 +1,57 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Bot {
+  id        String    @id @default(uuid())
+  name      String
+  uid       String    @unique
+  prompt    String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  callLogs  CallLog[]
+
+  @@map("bots")
+}
+
+model Employee {
+  id         String @id @default(uuid())
+  name       String
+  department String
+  floor      String
+  room       String
+  status     String
+
+  @@map("employees")
+}
+
+model Visitor {
+  id               String  @id @default(uuid())
+  name             String
+  appointment      String
+  expectedEmployee String
+  phoneNumber      String? @unique
+
+  @@map("visitors")
+}
+
+model CallLog {
+  id          String   @id @default(uuid())
+  botId       String
+  visitor     String
+  employee    String
+  department  String
+  arrivalTime DateTime
+  duration    Int?
+  transcript  String?
+  status      String
+  createdAt   DateTime @default(now())
+  bot         Bot      @relation(fields: [botId], references: [id])
+
+  @@map("call_logs")
+}
