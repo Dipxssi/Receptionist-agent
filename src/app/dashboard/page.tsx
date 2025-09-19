@@ -5,24 +5,80 @@ import CallIcon from '../components/CallIcon';
 import EmployeesIcon from '../components/EmployeesIcon';
 import StatusIcon from '../components/StatusIcon';
 
-export default async function Dashboard() {
-  const [bots, callLogs, employees] = await Promise.all([
-    getBots(),
-    getCallLogs(), 
-    getEmployees()
-  ]);
+const fallbackData = {
+  bots: [
+    { id: 'bot_1', name: 'Main Reception Agent', status: 'active' }
+  ],
+  callLogs: [
+    {
+      id: 'call_1',
+      visitor: 'John Smith',
+      employee: 'Sarah Johnson',
+      department: 'Engineering',
+      duration: 45,
+      status: 'completed',
+      arrivalTime: new Date()
+    },
+    {
+      id: 'call_2',
+      visitor: 'Mike Chen',
+      employee: 'Lisa Rodriguez',
+      department: 'HR',
+      duration: 62,
+      status: 'completed',
+      arrivalTime: new Date()
+    }
+  ],
+  employees: [
+    { id: 'emp_1', name: 'Sarah Johnson', department: 'Engineering', floor: '3rd', room: '305' },
+    { id: 'emp_2', name: 'Lisa Rodriguez', department: 'HR', floor: '2nd', room: '201' }
+  ]
+};
 
+export default async function Dashboard() {
+  let bots, callLogs, employees;
+  let usingFallback = false;
+  try {
+    [bots, callLogs, employees] = await Promise.all([
+      getBots(),
+      getCallLogs(),
+      getEmployees()
+    ]);
+  } catch (error) {
+    console.error('Database connection failed, using fallback data:', error);
+    bots = fallbackData.bots;
+    callLogs = fallbackData.callLogs;
+    employees = fallbackData.employees;
+    usingFallback = true;
+  }
   return (
     <div className="space-y-6">
+      {usingFallback && (
+        <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4">
+          <div className="flex">
+            <div className="flex-shrink-0">
+              <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.19-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <p className="text-sm text-yellow-700">
+                <strong>Demo Mode:</strong> Using sample data. Database connection will be restored shortly.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div className="bg-white overflow-hidden shadow rounded-lg">
           <div className="p-5">
             <div className="flex items-center">
               <div className="flex-shrink-0">
                 <div className="w-8 h-8 bg-amber-500 rounded-md flex items-center justify-center">
-                  <span className="text-white text-sm font-medium"> 
-                   <BotIcon className="w-5 h-5 text-white"/>
-                   </span>
+                  <span className="text-white text-sm font-medium">
+                    <BotIcon className="w-5 h-5 text-white" />
+                  </span>
                 </div>
               </div>
               <div className="ml-5 w-0 flex-1">
@@ -45,7 +101,7 @@ export default async function Dashboard() {
               <div className="flex-shrink-0">
                 <div className="w-8 h-8 bg-amber-500 rounded-md flex items-center justify-center">
                   <span className="text-white text-sm font-medium">
-                    <CallIcon className="w-5 h-5 text-white"/>
+                    <CallIcon className="w-5 h-5 text-white" />
                   </span>
                 </div>
               </div>
@@ -69,7 +125,7 @@ export default async function Dashboard() {
               <div className="flex-shrink-0">
                 <div className="w-8 h-8 bg-amber-500 rounded-md flex items-center justify-center">
                   <span className="text-white text-sm font-medium">
-                    <EmployeesIcon className="w-5 h-5 text-white"/>
+                    <EmployeesIcon className="w-5 h-5 text-white" />
                   </span>
                 </div>
               </div>
@@ -93,7 +149,7 @@ export default async function Dashboard() {
               <div className="flex-shrink-0">
                 <div className="w-8 h-8 bg-amber-500 rounded-md flex items-center justify-center">
                   <span className="text-white text-sm font-medium">
-                    <StatusIcon className="w-5 h-5 text-white"/>
+                    <StatusIcon className="w-5 h-5 text-white" />
                   </span>
                 </div>
               </div>
