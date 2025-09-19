@@ -1,30 +1,32 @@
-// app/api/bots/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { getBots, createBot } from '@/lib/data-utils';
+import { updateBot, deleteBot } from '@/lib/data-utils';
 
-export async function GET() {
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
-    const bots = await getBots();
-    return NextResponse.json({ bots });
+    const id = params.id;
+    const body = await request.json();
+    
+    const bot = await updateBot(id, body);
+    return NextResponse.json({ bot });
   } catch (error) {
-    console.error('Error fetching bots:', error);
-    return NextResponse.json({ error: 'Failed to fetch bots' }, { status: 500 });
+    console.error('Error updating bot:', error);
+    return NextResponse.json({ error: 'Failed to update bot' }, { status: 500 });
   }
 }
 
-export async function POST(request: NextRequest) {
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
-    const body = await request.json();
-    const { name, openmic_uid } = body;
-
-    if (!name) {
-      return NextResponse.json({ error: 'Bot name is required' }, { status: 400 });
-    }
-
-    const bot = await createBot({ name, openmic_uid });
-    return NextResponse.json({ bot }, { status: 201 });
+    const id = params.id;
+    await deleteBot(id);
+    return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Error creating bot:', error);
-    return NextResponse.json({ error: 'Failed to create bot' }, { status: 500 });
+    console.error('Error deleting bot:', error);
+    return NextResponse.json({ error: 'Failed to delete bot' }, { status: 500 });
   }
 }
