@@ -173,7 +173,7 @@ export default function BotsPage() {
                 type="text"
                 value={newBot.name}
                 onChange={(e) => setNewBot({...newBot, name: e.target.value})}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-3 py-2 border"
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-3 py-2 border text-gray-900 placeholder-gray-400 bg-white"
                 placeholder="e.g., Reception Bot"
               />
             </div>
@@ -183,7 +183,7 @@ export default function BotsPage() {
                 type="text"
                 value={newBot.openmic_uid}
                 onChange={(e) => setNewBot({...newBot, openmic_uid: e.target.value})}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-3 py-2 border"
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-3 py-2 border text-gray-900 placeholder-gray-400 bg-white"
                 placeholder="e.g., openmic_xyz789"
               />
             </div>
@@ -193,7 +193,7 @@ export default function BotsPage() {
                 value={newBot.prompt}
                 onChange={(e) => setNewBot({...newBot, prompt: e.target.value})}
                 rows={3}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-3 py-2 border"
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm px-3 py-2 border text-gray-900 placeholder-gray-400 bg-white"
                 placeholder="Enter bot instructions and personality..."
               />
             </div>
@@ -227,7 +227,7 @@ export default function BotsPage() {
                 type="text"
                 value={newBot.name}
                 onChange={(e) => setNewBot({...newBot, name: e.target.value})}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500 sm:text-sm px-3 py-2 border"
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500 sm:text-sm px-3 py-2 border text-gray-900 placeholder-gray-400 bg-white"
                 placeholder="e.g., Reception Bot"
               />
             </div>
@@ -237,7 +237,7 @@ export default function BotsPage() {
                 type="text"
                 value={newBot.openmic_uid}
                 onChange={(e) => setNewBot({...newBot, openmic_uid: e.target.value})}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500 sm:text-sm px-3 py-2 border"
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500 sm:text-sm px-3 py-2 border text-gray-900 placeholder-gray-400 bg-white"
                 placeholder="e.g., openmic_xyz789"
               />
             </div>
@@ -247,7 +247,7 @@ export default function BotsPage() {
                 value={newBot.prompt}
                 onChange={(e) => setNewBot({...newBot, prompt: e.target.value})}
                 rows={3}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500 sm:text-sm px-3 py-2 border"
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500 sm:text-sm px-3 py-2 border text-gray-900 placeholder-gray-400 bg-white"
                 placeholder="Enter bot instructions and personality..."
               />
             </div>
