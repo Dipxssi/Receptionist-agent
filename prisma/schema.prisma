@@ -8,13 +8,15 @@ datasource db {
 }
 
 model Bot {
-  id        String    @id @default(uuid())
-  name      String
-  uid       String    @unique
-  prompt    String
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  callLogs  CallLog[]
+  id          String    @id @default(cuid())
+  name        String
+  uid         String    @unique
+  prompt      String
+  openmic_uid String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  status      String    @default("active")
+  callLogs    CallLog[]
 
   @@map("bots")
 }
@@ -41,7 +43,7 @@ model Visitor {
 }
 
 model CallLog {
-  id          String   @id @default(uuid())
+  id          String   @id @default(cuid())
   botId       String
   visitor     String
   employee    String

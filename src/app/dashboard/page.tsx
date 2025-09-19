@@ -12,8 +12,8 @@ const fallbackData = {
   callLogs: [
     {
       id: 'call_1',
-      visitor: 'John Smith',
-      employee: 'Sarah Johnson',
+      visitor: 'abc',
+      employee: 'Dipsha Das',
       department: 'Engineering',
       duration: 45,
       status: 'completed',
@@ -21,8 +21,8 @@ const fallbackData = {
     },
     {
       id: 'call_2',
-      visitor: 'Mike Chen',
-      employee: 'Lisa Rodriguez',
+      visitor: 'xyz',
+      employee: 'Dipsha Das',
       department: 'HR',
       duration: 62,
       status: 'completed',
