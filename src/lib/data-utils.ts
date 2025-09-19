@@ -20,7 +20,33 @@ export async function findEmployeeByName(name: string) {
 }
 
 export async function getBots() {
-  return await prisma.bot.findMany();
+  try {
+    const bots = await prisma.bot.findMany({
+      orderBy: { createdAt: 'desc' }
+    });
+    return bots;
+  } catch (error) {
+    console.error('Error in getBots:', error);
+    return [];
+  }
+}
+
+export async function createBot(data: { name: string; openmic_uid?: string }) {
+  try {
+    const bot = await prisma.bot.create({
+      data: {
+        name: data.name,
+        uid: `uid_${Date.now()}`, 
+        openmic_uid: data.openmic_uid || null,
+        prompt: `AI receptionist bot: ${data.name}`,
+        status: 'active'
+      }
+    });
+    return bot;
+  } catch (error) {
+    console.error('Error in createBot:', error);
+    throw error;
+  }
 }
 
 export async function getEmployees() {
