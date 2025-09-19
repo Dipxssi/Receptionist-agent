@@ -9,15 +9,18 @@ export async function POST(request: NextRequest) {
     
     // Extract call information
     const callLog = {
-      id: uuidv4(),
-      botId: 'bot_1', // Default bot for now
       visitor: payload.dynamic_variables?.visitor_name || 'Unknown Visitor',
       employee: payload.dynamic_variables?.employee_visited || 'Unknown Employee',
       department: payload.dynamic_variables?.department || 'Unknown Department',
       arrivalTime: new Date(),
       duration: payload.duration || 0,
       transcript: payload.transcript || '',
-      status: payload.status || 'completed'
+      status: payload.status || 'completed',
+      bot: {
+        connect: {
+          id: 'bot_1' // Default bot for now
+        }
+      }
     };
     
     // Save to database
