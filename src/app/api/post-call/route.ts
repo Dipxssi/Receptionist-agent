@@ -3,7 +3,6 @@ import { addCallLog } from '@/lib/data-utils';
 import { Prisma, CallLog as PrismaCallLog } from '@prisma/client';
 import { z } from 'zod';
 
-
 const PostCallSchema = z.object({
   call_id: z.string().min(1, "Call ID is required"),
   bot_id: z.string().min(1, "Bot ID is required"),
@@ -17,7 +16,6 @@ const PostCallSchema = z.object({
     department: z.string().optional()
   }).optional()
 });
-
 
 type ResponseData = {
   success?: boolean;
@@ -51,12 +49,10 @@ export async function POST(request: NextRequest) {
     const validatedData = PostCallSchema.parse(body);
     const { call_id, bot_id, duration, transcript, status, timestamp, dynamic_variables } = validatedData;
 
- 
-    const callLog: Prisma.CallLogCreateInput = {
+    // FIXED: Use CallLogUncheckedCreateInput instead of CallLogCreateInput
+    const callLog: Prisma.CallLogUncheckedCreateInput = {
       callId: call_id,
-      bot: {
-        connect: { id: bot_id }
-      },
+      botId: bot_id, // Direct foreign key reference instead of connect
       visitor: dynamic_variables?.visitor_name || 'Unknown Visitor',
       employee: dynamic_variables?.employee_visited || 'Unknown Employee',
       department: dynamic_variables?.department || 'Unknown Department',

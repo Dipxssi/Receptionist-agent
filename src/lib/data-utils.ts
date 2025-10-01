@@ -114,11 +114,12 @@ export async function getCallLogs(options?: {
 }
 
 
-export async function addCallLog(callLog:Prisma.CallLogCreateInput ) {
+export async function addCallLog(data: Prisma.CallLogUncheckedCreateInput) {
   return await prisma.callLog.create({
-    data: callLog
+    data
   });
 }
+
 
 export async function getBotById(id: string) {
   try {
