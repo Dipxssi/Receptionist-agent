@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { updateBot, deleteBot } from '@/lib/data-utils';
 
-export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(
+  request: NextRequest, 
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
-    const { id } = params as { id: string }; 
+    const { id } = await params;
     const body = await request.json();
     const bot = await updateBot(id, body);
     return NextResponse.json({ bot });
@@ -13,9 +16,12 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(
+  request: NextRequest, 
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
-    const { id } = params as { id: string }; 
+    const { id } = await params; 
     await deleteBot(id);
     return NextResponse.json({ success: true });
   } catch (error) {
