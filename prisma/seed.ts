@@ -79,7 +79,7 @@ async function main() {
   for (const call of jsonData.callLogs) {
     await prisma.callLog.create({
       data: {
-        callId: `seed_call_${Math.random().toString(36).substr(2, 9)}`, // generate unique callId
+        callId: `seed_call_${Math.random().toString(36).substr(2, 9)}`, 
         botId: call.botId,
         visitor: call.visitor,
         employee: call.employee,
