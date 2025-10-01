@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Prisma } from '@prisma/client';
 import fs from 'fs';
 import path from 'path';
 
@@ -14,7 +14,7 @@ async function main() {
   await prisma.employee.deleteMany();
   console.log('✓ Cleared existing data');
 
-  // Load JSON data if exists
+  // Load JSON data or use hardcoded fallback
   let jsonData;
   try {
     const dataPath = path.join(process.cwd(), 'src', 'lib', 'data.json');
@@ -33,80 +33,67 @@ async function main() {
         { id: 'vis_002', name: 'Mike Chen', appointment: false, expectedEmployee: 'Lisa Rodriguez', phoneNumber: '+1234567891' }
       ],
       bots: [
-        { id: 'bot_001', name: 'Main Reception Agent', uid: 'main_reception_001', prompt: 'Professional AI receptionist.', status: 'active', openmic_uid: 'openmic_reception_agent_123' },
-        { id: 'bot_002', name: 'HR Assistant Bot', uid: 'hr_assistant_001', prompt: 'HR assistant bot.', status: 'inactive', openmic_uid: 'openmic_hr_assistant_456' },
+        { id: 'bot_001', name: 'Main Reception Agent', uid: 'main_reception_001', prompt: 'Professional AI receptionist for Attack Agent office.', status: 'active', openmic_uid: 'openmic_reception_agent_123' },
+        { id: 'bot_002', name: 'HR Assistant Bot', uid: 'hr_assistant_001', prompt: 'HR department specialized assistant.', status: 'inactive', openmic_uid: 'openmic_hr_assistant_456' },
         { id: 'bot_003', name: 'Customer Service Bot', uid: 'customer_service_001', prompt: 'Customer service bot.', status: 'active', openmic_uid: null }
       ],
       callLogs: [
-        { callId: 'seed_call_001', botId: 'bot_001', visitor: 'John Smith', employee: 'Sarah Johnson', department: 'Engineering', duration: 45, transcript: 'Visitor asked for Sarah Johnson. Provided location: 3rd floor, room 305.', status: 'completed' },
-        { callId: 'seed_call_002', botId: 'bot_001', visitor: 'Mike Chen', employee: 'Lisa Rodriguez', department: 'HR', duration: 62, transcript: 'Visitor looking for Lisa Rodriguez. Directed to HR department, 2nd floor.', status: 'completed' },
-        { callId: 'seed_call_003', botId: 'bot_002', visitor: 'Emma Wilson', employee: 'David Park', department: 'Marketing', duration: 38, transcript: 'Quick inquiry about marketing department location.', status: 'completed' }
+        { botId: 'bot_001', visitor: 'John Smith', employee: 'Sarah Johnson', department: 'Engineering', duration: 45, transcript: 'Visitor asked for Sarah Johnson.', status: 'completed' },
+        { botId: 'bot_001', visitor: 'Mike Chen', employee: 'Lisa Rodriguez', department: 'HR', duration: 62, transcript: 'Visitor looking for Lisa Rodriguez.', status: 'completed' },
+        { botId: 'bot_002', visitor: 'Emma Wilson', employee: 'David Park', department: 'Marketing', duration: 38, transcript: 'Quick inquiry about marketing department.', status: 'completed' }
       ]
     };
   }
 
-  // Create Employees
-  for (const employee of jsonData.employees) {
-    await prisma.employee.create({
-      data: {
-        id: employee.id,
-        name: employee.name,
-        department: employee.department,
-        floor: employee.floor,
-        room: employee.room,
-        status: employee.status ?? 'available'
-      }
-    });
+  // Create employees
+  console.log('Creating employees...');
+  for (const emp of jsonData.employees) {
+    await prisma.employee.create({ data: emp });
   }
 
-  // Create Visitors
+  // Create visitors
+  console.log('Creating visitors...');
   for (const visitor of jsonData.visitors) {
-    await prisma.visitor.create({
-      data: {
-        id: visitor.id,
-        name: visitor.name,
-        appointment: visitor.appointment,
-        expectedEmployee: visitor.expectedEmployee,
-        phoneNumber: visitor.phoneNumber
-      }
-    });
+    await prisma.visitor.create({ data: visitor });
   }
 
-  // Create Bots
+  // Create bots
+  console.log('Creating bots...');
   for (const bot of jsonData.bots) {
     await prisma.bot.create({
       data: {
         id: bot.id,
         name: bot.name,
-        uid: bot.uid ?? `uid_${bot.id}`,
+        uid: bot.uid || `uid_${bot.id}`,
         prompt: bot.prompt,
-        status: bot.status ?? 'active',
-        openmic_uid: bot.openmic_uid ?? null,
+        status: bot.status || 'active',
+        openmic_uid: bot.openmic_uid || null,
         createdAt: bot.createdAt ? new Date(bot.createdAt) : new Date(),
         updatedAt: bot.updatedAt ? new Date(bot.updatedAt) : new Date()
       }
     });
   }
 
-  // Create Call Logs
-  for (const callLog of jsonData.callLogs) {
+  // Create call logs
+  console.log('Creating call logs...');
+  for (const call of jsonData.callLogs) {
     await prisma.callLog.create({
       data: {
-        callId: callLog.callId,
-        botId: callLog.botId,
-        visitor: callLog.visitor,
-        employee: callLog.employee,
-        department: callLog.department,
-        arrivalTime: callLog.arrivalTime ? new Date(callLog.arrivalTime) : new Date(),
-        duration: callLog.duration ?? 0,
-        transcript: callLog.transcript ?? null,
-        status: callLog.status ?? 'completed'
-      }
+        callId: `seed_call_${Math.random().toString(36).substr(2, 9)}`, // generate unique callId
+        botId: call.botId,
+        visitor: call.visitor,
+        employee: call.employee,
+        department: call.department,
+        arrivalTime: call.arrivalTime ? new Date(call.arrivalTime) : new Date(),
+        duration: call.duration || 0,
+        transcript: call.transcript || null,
+        status: call.status || 'completed'
+      } as Prisma.CallLogUncheckedCreateInput
     });
   }
 
   console.log('Database seeded successfully!');
-  console.log(`Employees: ${jsonData.employees.length}, Visitors: ${jsonData.visitors.length}, Bots: ${jsonData.bots.length}, Call Logs: ${jsonData.callLogs.length}`);
+  console.log(`✓ Employees: ${jsonData.employees.length}, Visitors: ${jsonData.visitors.length}, Bots: ${jsonData.bots.length}, CallLogs: ${jsonData.callLogs.length}`);
 }
 
 main()
