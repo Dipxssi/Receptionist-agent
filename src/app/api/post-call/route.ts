@@ -1,43 +1,125 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { addCallLog } from '@/lib/data-utils';
+import { Prisma, CallLog as PrismaCallLog } from '@prisma/client';
+import { z } from 'zod';
+
+
+const PostCallSchema = z.object({
+  call_id: z.string().min(1, "Call ID is required"),
+  bot_id: z.string().min(1, "Bot ID is required"),
+  duration: z.number().min(0).optional(),
+  transcript: z.string().nullable().optional(),
+  status: z.enum(['completed', 'failed', 'no-answer', 'busy']).default('completed'),
+  timestamp: z.string().optional(),
+  dynamic_variables: z.object({
+    visitor_name: z.string().optional(),
+    employee_visited: z.string().optional(),
+    department: z.string().optional()
+  }).optional()
+});
+
+
+type ResponseData = {
+  success?: boolean;
+  message?: string;
+  callLog?: PrismaCallLog; 
+  error?: string;
+  details?: Array<{ field: string; message: string }> | string;
+  method?: string;
+  timestamp?: string;
+};
+
+// Helper for response
+function createResponse(data: ResponseData, status = 200) {
+  const response = NextResponse.json(data, { status });
+  response.headers.set('Access-Control-Allow-Origin', '*');
+  response.headers.set('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
+  return response;
+}
 
 export async function POST(request: NextRequest) {
+  const startTime = Date.now();
+  
   try {
     const body = await request.json();
-    console.log('Post-call webhook received:', body);
+    console.log('Post-call webhook received:', {
+      call_id: body.call_id,
+      bot_id: body.bot_id,
+      timestamp: new Date().toISOString()
+    });
 
-    const { dynamic_variables, duration, transcript, status } = body;
+    const validatedData = PostCallSchema.parse(body);
+    const { call_id, bot_id, duration, transcript, status, timestamp, dynamic_variables } = validatedData;
 
-    // Create call log object
-    const callLog = {
+ 
+    const callLog: Prisma.CallLogCreateInput = {
+      callId: call_id,
       bot: {
-        connect: { id: 'bot_001' } 
+        connect: { id: bot_id }
       },
       visitor: dynamic_variables?.visitor_name || 'Unknown Visitor',
-      employee: dynamic_variables?.employee_visited || 'Unknown Employee', 
+      employee: dynamic_variables?.employee_visited || 'Unknown Employee',
       department: dynamic_variables?.department || 'Unknown Department',
-      arrivalTime: new Date(),
-      duration: duration || 0,
-      transcript: transcript || null,
-      status: status || 'completed'
+      arrivalTime: timestamp ? new Date(timestamp) : new Date(),
+      duration: duration ?? 0, 
+      transcript: transcript ?? null,
+      status
     };
 
-    
     const savedLog = await addCallLog(callLog);
 
-    console.log('Call log saved:', savedLog);
+    console.log('Call log saved successfully:', {
+      id: savedLog.id,
+      call_id: savedLog.callId,
+      processingTime: `${Date.now() - startTime}ms`
+    });
     
-    return NextResponse.json({ 
+    return createResponse({ 
       success: true, 
       message: 'Call logged successfully',
       callLog: savedLog
     });
 
   } catch (error) {
-    console.error('Error in post-call webhook:', error);
-    return NextResponse.json(
-      { error: 'Failed to process post-call webhook' },
-      { status: 500 }
-    );
+    console.error('Error in post-call webhook:', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+      processingTime: `${Date.now() - startTime}ms`
+    });
+
+    if (error instanceof z.ZodError) {
+      return createResponse(
+        { 
+          success: false,
+          error: 'Invalid request payload',
+          details: error.issues.map(e => ({
+            field: e.path.join('.'),
+            message: e.message
+          }))
+        },
+        400
+      );
+    }
+
+    if (typeof error === 'object' && error !== null && 'code' in error && error.code === 'P2002') {
+      return createResponse(
+        { 
+          success: false,
+          error: 'Call log with this ID already exists'
+        },
+        409
+      );
+    }
+
+    const errorResponse: ResponseData = {
+      success: false,
+      error: 'Failed to process post-call webhook'
+    };
+
+    if (process.env.NODE_ENV === 'development') {
+      errorResponse.details = error instanceof Error ? error.message : 'Unknown error';
+    }
+
+    return createResponse(errorResponse, 500);
   }
 }

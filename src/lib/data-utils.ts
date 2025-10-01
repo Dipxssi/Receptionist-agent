@@ -97,11 +97,22 @@ export async function getVisitors() {
   return await prisma.visitor.findMany();
 }
 
-export async function getCallLogs() {
+export async function getCallLogs(options?: { 
+  limit?: number; 
+  page?: number; 
+  botId?: string; 
+}) {
+  const { limit = 50, page = 1, botId } = options || {};
+
   return await prisma.callLog.findMany({
-    include: { bot: true }
+    where: botId ? { botId } : {},   
+    include: { bot: true },          
+    orderBy: { createdAt: 'desc' },  
+    take: limit,                     
+    skip: (page - 1) * limit         
   });
 }
+
 
 export async function addCallLog(callLog:Prisma.CallLogCreateInput ) {
   return await prisma.callLog.create({
@@ -109,3 +120,14 @@ export async function addCallLog(callLog:Prisma.CallLogCreateInput ) {
   });
 }
 
+export async function getBotById(id: string) {
+  try {
+    const bot = await prisma.bot.findUnique({
+      where: { id },
+    });
+    return bot;
+  } catch (error) {
+    console.error('Error fetching bot by ID:', error);
+    throw error;
+  }
+}

@@ -1,9 +1,21 @@
-// app/api/bots/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { getBots, createBot } from '@/lib/data-utils';
+import { getBots, createBot, getBotById } from '@/lib/data-utils';
+import { z } from 'zod';
 
-export async function GET() {
+// POST schema
+const BotSchema = z.object({
+  name: z.string().min(1),
+  openmic_uid: z.string().optional()
+});
+
+export async function GET(request: NextRequest, { params }: { params: { id?: string } }) {
   try {
+    if (params?.id) {
+      const bot = await getBotById(params.id);
+      if (!bot) return NextResponse.json({ error: 'Bot not found' }, { status: 404 });
+      return NextResponse.json({ bot });
+    }
+
     const bots = await getBots();
     return NextResponse.json({ bots });
   } catch (error) {
@@ -15,13 +27,13 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, openmic_uid } = body;
+    const parsed = BotSchema.safeParse(body);
 
-    if (!name) {
-      return NextResponse.json({ error: 'Bot name is required' }, { status: 400 });
+    if (!parsed.success) {
+      return NextResponse.json({ error: parsed.error.issues }, { status: 400 });
     }
 
-    const bot = await createBot({ name, openmic_uid });
+    const bot = await createBot(parsed.data);
     return NextResponse.json({ bot }, { status: 201 });
   } catch (error) {
     console.error('Error creating bot:', error);

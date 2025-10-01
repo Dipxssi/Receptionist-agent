@@ -10,7 +10,7 @@
     "build-with-lint": "next lint && next build"
   },
   "prisma": {
-     "seed" : "tsx prisma/seed.ts"
+    "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.16.2",
@@ -19,7 +19,8 @@
     "prisma": "^6.16.2",
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "uuid": "^13.0.0"
+    "uuid": "^13.0.0",
+    "zod": "^4.1.11"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

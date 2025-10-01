@@ -2,31 +2,41 @@ import { NextRequest, NextResponse } from 'next/server';
 import { findVisitorByPhone } from '@/lib/data-utils';
 import { PreCallPayload } from '@/lib/types';
 
+
+function normalizePhone(phone: string): string {
+  return phone.replace(/\D/g, ''); 
+}
+
 export async function POST(request: NextRequest) {
   try {
     // Parse the incoming webhook payload from OpenMic
     const payload: PreCallPayload = await request.json();
-    
+
     console.log('Pre-call webhook received:', payload);
-    
+
+    // Normalize phone number
+    const phone = normalizePhone(payload.from_number);
+
     // Get visitor data based on the incoming phone number
-    const expectedVisitor = await findVisitorByPhone(payload.from_number);
-    
+    const expectedVisitor = await findVisitorByPhone(phone);
+
     // Prepare response data for the AI agent
     const responseData = {
-      visitor_info: expectedVisitor ? {
-        name: expectedVisitor.name,
-        appointment_time: expectedVisitor.appointment,
-        expected_employee: expectedVisitor.expectedEmployee,
-        status: "expected"
-      } : {
-        name: "Unknown visitor",
-        appointment_time: null,
-        expected_employee: null,
-        status: "unexpected"
-      },
-      greeting_context: expectedVisitor 
-        ? `${expectedVisitor.name} has a ${expectedVisitor.appointment} appointment with ${expectedVisitor.expectedEmployee}`
+      visitor_info: expectedVisitor
+        ? {
+            name: expectedVisitor.name ?? 'Unknown Visitor',
+            appointment_time: expectedVisitor.appointment ?? null,
+            expected_employee: expectedVisitor.expectedEmployee ?? 'Unknown',
+            status: "expected"
+          }
+        : {
+            name: "Unknown visitor",
+            appointment_time: null,
+            expected_employee: null,
+            status: "unexpected"
+          },
+      greeting_context: expectedVisitor
+        ? `${expectedVisitor.name ?? 'Visitor'} has a ${expectedVisitor.appointment ?? 'unknown'} appointment with ${expectedVisitor.expectedEmployee ?? 'Unknown'}`
         : "Unexpected visitor - please ask for details",
       call_metadata: {
         call_id: payload.call_id,
@@ -34,17 +44,17 @@ export async function POST(request: NextRequest) {
         timestamp: new Date().toISOString()
       }
     };
-    
+
     // Return data that OpenMic will use to personalize the conversation
     return NextResponse.json({
       success: true,
       data: responseData
     });
-    
+
   } catch (error) {
     console.error('Pre-call webhook error:', error);
-    
-    // Always return success to prevent OpenMic retries on our bugs
+
+    // Always return structured JSON to prevent OpenMic retries
     return NextResponse.json({
       success: false,
       error: 'Failed to process pre-call webhook',
@@ -59,10 +69,10 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// Handle other HTTP methods
+// Healthcheck endpoint
 export async function GET() {
-  return NextResponse.json({ 
+  return NextResponse.json({
     message: "Pre-call webhook endpoint is active",
-    method: "POST required" 
+    method: "POST required"
   });
 }

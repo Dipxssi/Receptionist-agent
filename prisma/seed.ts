@@ -12,7 +12,7 @@ async function main() {
   await prisma.visitor.deleteMany();
   await prisma.employee.deleteMany();
 
-  console.log(' Cleared existing data');
+  console.log('✓ Cleared existing data');
 
   let jsonData;
   try {
@@ -94,6 +94,7 @@ async function main() {
       callLogs: [
         {
           id: 'call_001',
+          callId: 'seed_call_001',  
           botId: 'bot_001',
           visitor: 'John Smith',
           employee: 'Sarah Johnson',
@@ -104,6 +105,7 @@ async function main() {
         },
         {
           id: 'call_002',
+          callId: 'seed_call_002',  
           botId: 'bot_001',
           visitor: 'Mike Chen',
           employee: 'Lisa Rodriguez', 
@@ -114,6 +116,7 @@ async function main() {
         },
         {
           id: 'call_003',
+          callId: 'seed_call_003',  
           botId: 'bot_002',
           visitor: 'Emma Wilson',
           employee: 'David Park',
@@ -141,7 +144,6 @@ async function main() {
     });
   }
 
-  // Create visitors
   console.log('Creating visitors...');
   for (const visitor of jsonData.visitors) {
     await prisma.visitor.create({
@@ -155,7 +157,7 @@ async function main() {
     });
   }
 
-  // Create bots with openmic_uid field
+
   console.log('Creating bots...');
   for (const bot of jsonData.bots) {
     await prisma.bot.create({
@@ -172,28 +174,29 @@ async function main() {
     });
   }
 
-
+  // Create call logs with callId
   if (jsonData.callLogs && jsonData.callLogs.length > 0) {
     console.log('Creating call logs...');
     for (const callLog of jsonData.callLogs) {
       await prisma.callLog.create({
         data: {
           id: callLog.id,
+          callId: callLog.callId || `seed_call_${callLog.id}`,  
           botId: callLog.botId,
           visitor: callLog.visitor,
           employee: callLog.employee,
           department: callLog.department,
           arrivalTime: callLog.arrivalTime ? new Date(callLog.arrivalTime) : new Date(),
-          duration: callLog.duration,
+          duration: callLog.duration || 0,  
           transcript: callLog.transcript || null,
-          status: callLog.status,
+          status: callLog.status || 'completed',  
         },
       });
     }
   }
 
   console.log('Database seeded successfully!');
-  console.log(' Summary:');
+  console.log('✓ Summary:');
   console.log(`   - Employees: ${jsonData.employees.length}`);
   console.log(`   - Visitors: ${jsonData.visitors.length}`);
   console.log(`   - Bots: ${jsonData.bots.length}`);
@@ -202,7 +205,7 @@ async function main() {
 
 main()
   .catch((e) => {
-    console.error('Seeding failed:', e);
+    console.error(' Seeding failed:', e);
     process.exit(1);
   })
   .finally(async () => {

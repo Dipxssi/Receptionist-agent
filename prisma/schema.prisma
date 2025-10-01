@@ -12,48 +12,59 @@ model Bot {
   name        String
   uid         String    @unique
   prompt      String
-  openmic_uid String?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   status      String    @default("active")
+  openmic_uid String?
   callLogs    CallLog[]
 
   @@map("bots")
 }
 
 model Employee {
-  id         String @id @default(uuid())
+  id         String   @id @default(uuid())
   name       String
   department String
   floor      String
   room       String
   status     String
+  createdAt  DateTime @default(now())  
+  updatedAt  DateTime @updatedAt       
 
+  @@index([name])  
   @@map("employees")
 }
 
 model Visitor {
-  id               String  @id @default(uuid())
+  id               String   @id @default(uuid())
   name             String
   appointment      String
   expectedEmployee String
-  phoneNumber      String? @unique
+  phoneNumber      String?  @unique
+  createdAt        DateTime @default(now())  
+  updatedAt        DateTime @updatedAt      
 
+  @@index([phoneNumber])  
   @@map("visitors")
 }
 
 model CallLog {
   id          String   @id @default(cuid())
+  callId      String   @unique             
   botId       String
   visitor     String
   employee    String
   department  String
   arrivalTime DateTime
-  duration    Int?
-  transcript  String?
-  status      String
+  duration    Int?     @default(0)        
+  transcript  String?  @db.Text           
+  status      String   @default("completed") 
   createdAt   DateTime @default(now())
-  bot         Bot      @relation(fields: [botId], references: [id])
+  updatedAt   DateTime @updatedAt          
+  bot         Bot      @relation(fields: [botId], references: [id], onDelete: Cascade)
 
+  @@index([callId])    
+  @@index([botId])     
+  @@index([createdAt]) 
   @@map("call_logs")
 }
