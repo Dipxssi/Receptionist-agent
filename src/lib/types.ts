@@ -37,10 +37,12 @@ export interface CallLog {
 }
 
 export interface PreCallPayload {
-  call_id: string;
-  from_number: string;
+  call_id?: string;
+  from_number?: string;
   to_number: string;
-  direction: 'inbound' | 'outbound';
+  caller_number?: string;
+  phone?: string;
+  direction?: string;
 }
 
 export interface FunctionCallPayload {

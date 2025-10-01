@@ -4,10 +4,11 @@ import { Prisma, CallLog as PrismaCallLog } from '@prisma/client';
 import { z } from 'zod';
 
 const PostCallSchema = z.object({
-  call_id: z.string().min(1, "Call ID is required"),
-  bot_id: z.string().min(1, "Bot ID is required"),
+  // Make these optional and handle multiple field names
+  call_id: z.string().optional(),
+  bot_id: z.string().optional(),
   duration: z.number().min(0).optional(),
-  transcript: z.string().nullable().optional(),
+  transcript: z.union([z.string(), z.array(z.string())]).nullable().optional(),
   status: z.enum(['completed', 'failed', 'no-answer', 'busy']).default('completed'),
   timestamp: z.string().optional(),
   dynamic_variables: z.object({
@@ -40,26 +41,30 @@ export async function POST(request: NextRequest) {
   
   try {
     const body = await request.json();
-    console.log('Post-call webhook received:', {
-      call_id: body.call_id,
-      bot_id: body.bot_id,
-      timestamp: new Date().toISOString()
-    });
+    console.log('Raw OpenMic payload:', JSON.stringify(body, null, 2)); // DEBUG: See actual format
 
     const validatedData = PostCallSchema.parse(body);
-    const { call_id, bot_id, duration, transcript, status, timestamp, dynamic_variables } = validatedData;
+    
+    // FIXED: Handle multiple possible field names with fallbacks
+    const call_id = validatedData.call_id || body.callId || body.id || `call_${Date.now()}`;
+    const bot_id = validatedData.bot_id || body.botId || body.agent_id || 'bot_001'; // fallback to your default bot
+    const transcript = Array.isArray(validatedData.transcript) 
+      ? validatedData.transcript.join(' ') 
+      : validatedData.transcript;
 
-    // FIXED: Use CallLogUncheckedCreateInput instead of CallLogCreateInput
+    console.log('Processed values:', { call_id, bot_id }); // DEBUG
+
+    // FIXED: Use CallLogUncheckedCreateInput with processed values
     const callLog: Prisma.CallLogUncheckedCreateInput = {
       callId: call_id,
-      botId: bot_id, // Direct foreign key reference instead of connect
-      visitor: dynamic_variables?.visitor_name || 'Unknown Visitor',
-      employee: dynamic_variables?.employee_visited || 'Unknown Employee',
-      department: dynamic_variables?.department || 'Unknown Department',
-      arrivalTime: timestamp ? new Date(timestamp) : new Date(),
-      duration: duration ?? 0, 
+      botId: bot_id, 
+      visitor: validatedData.dynamic_variables?.visitor_name || 'Unknown Visitor',
+      employee: validatedData.dynamic_variables?.employee_visited || 'Unknown Employee',
+      department: validatedData.dynamic_variables?.department || 'Unknown Department',
+      arrivalTime: validatedData.timestamp ? new Date(validatedData.timestamp) : new Date(),
+      duration: validatedData.duration ?? 0, 
       transcript: transcript ?? null,
-      status
+      status: validatedData.status
     };
 
     const savedLog = await addCallLog(callLog);

@@ -3,7 +3,8 @@ import { findVisitorByPhone } from '@/lib/data-utils';
 import { PreCallPayload } from '@/lib/types';
 
 
-function normalizePhone(phone: string): string {
+function normalizePhone(phone: string | undefined): string {
+  if (!phone) return ''; 
   return phone.replace(/\D/g, ''); 
 }
 
@@ -15,7 +16,8 @@ export async function POST(request: NextRequest) {
     console.log('Pre-call webhook received:', payload);
 
     // Normalize phone number
-    const phone = normalizePhone(payload.from_number);
+    const phone = normalizePhone(payload.from_number || payload.caller_number || payload.phone);
+
 
     // Get visitor data based on the incoming phone number
     const expectedVisitor = await findVisitorByPhone(phone);
