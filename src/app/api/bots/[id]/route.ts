@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { updateBot, deleteBot } from '@/lib/data-utils';
 
-interface Props {
-  params: { id: string }; // plain object, not Promise
-}
-
-export async function PATCH(request: NextRequest, { params }: Props) {
+// PATCH handler
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: { id: string } } // <- inline type
+) {
   try {
     const { id } = params;
     const body = await request.json();
@@ -17,7 +17,11 @@ export async function PATCH(request: NextRequest, { params }: Props) {
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: Props) {
+// DELETE handler
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string } } // <- inline type
+) {
   try {
     const { id } = params;
     await deleteBot(id);
