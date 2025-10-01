@@ -8,10 +8,13 @@ const BotSchema = z.object({
   openmic_uid: z.string().optional()
 });
 
-export async function GET(request: NextRequest, { params }: { params: { id?: string } }) {
+export async function GET(request: NextRequest) {
   try {
-    if (params?.id) {
-      const bot = await getBotById(params.id);
+    const url = new URL(request.url);
+    const id = url.searchParams.get('id'); // optional id query param
+
+    if (id) {
+      const bot = await getBotById(id);
       if (!bot) return NextResponse.json({ error: 'Bot not found' }, { status: 404 });
       return NextResponse.json({ bot });
     }
